@@ -7,7 +7,7 @@ $(function() {
     window.socket = io.connect();
     window.socket.on('chat', function(data) {
         $('#chat').append($('<li>' + (data.name || 'Anonymous') + ': ' + data.message + '</li>'));
-        console.log('message chat:', data)
+        //console.log('message chat:', data)
     });
     
     $('#send').keyup(function(event) {

@@ -37,13 +37,20 @@ var io = require('socket.io').listen(app);
 var sockets = {};
 
 io.sockets.on('connection', function (socket) {
-    socket.emit('chat', {name: '<b>Server</b>', message: 'Connected!'});
+    socket.emit('chat', {name: '<b>Server</b>', message: 'Connected!', status: 1});
     sockets[socket.id] = socket;
     socket.on('chat', function (data) {
         Object.keys(sockets).forEach(function(id) {
             sockets[id].emit('chat', data);
         });
     });
+
+    socket.on('draw', function (data) {
+        Object.keys(sockets).forEach(function(id) {
+            sockets[id].emit('draw', data);
+        });
+    });
+
 });
 
 io.sockets.on('disconnect', function (socket) {
