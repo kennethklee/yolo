@@ -38,22 +38,25 @@ var sockets = {};
 
 io.sockets.on('connection', function (socket) {
     socket.emit('chat', {name: '<b>Server</b>', message: 'Connected!', status: 1});
+    
+    // Notify other users of the new user
+    io.sockets.emit('chat', {name: '<b>Server</b>', message: 'New User!'});
+
     sockets[socket.id] = socket;
     socket.on('chat', function (data) {
-        Object.keys(sockets).forEach(function(id) {
-            sockets[id].emit('chat', data);
-        });
+        io.sockets.emit('chat', data);
     });
 
     socket.on('draw', function (data) {
-        Object.keys(sockets).forEach(function(id) {
-            sockets[id].emit('draw', data);
-        });
+        io.sockets.emit('draw', data);
+        console.log('Broadcast DRAW to ' + Object.keys(sockets).length);
     });
 
 });
 
 io.sockets.on('disconnect', function (socket) {
+    console.log('User Disconnected!');
+    io.sockets.emit('chat', {name: '<b>Server</b>', message: 'User Disconnected!'});
     delete sockets[socket.id];
 });
 
