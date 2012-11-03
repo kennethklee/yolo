@@ -32,7 +32,7 @@ var httpHandler = function(request, response) {
   });
 };
 
-var app = require("http").createServer(httpHandler);
+var app = require('http').createServer(httpHandler);
 var io = require('socket.io').listen(app);
 var sockets = {};
 
@@ -59,6 +59,45 @@ io.sockets.on('disconnect', function (socket) {
     io.sockets.emit('chat', {name: '<b>Server</b>', message: 'User Disconnected!'});
     delete sockets[socket.id];
 });
+
+
+// Server version of world state
+var Box2D = require('./box2d.js');
+var world = new Box2D.Dynamics.b2World(new Box2D.Common.Math.b2Vec2(0, 10), true);    // Allow sleep
+
+var fixtureDef = new Box2D.Dynamics.b2FixtureDef();
+fixtureDef.density = 1.0;
+fixtureDef.friction = 0.5;
+fixtureDef.restitution = 0.3;
+
+// Ground around
+var bodyDef = new Box2D.Dynamics.b2BodyDef();
+bodyDef.type = Box2D.Dynamics.b2Body.b2_staticBody;
+bodyDef.position.x = 9;
+bodyDef.position.y = 13;
+fixtureDef.shape = new Box2D.Collision.Shapes.b2PolygonShape();
+fixtureDef.shape.SetAsBox(20, 2);
+bodyDef.position.Set(10, 400 / 30 + 1.8);
+world.CreateBody(bodyDef).CreateFixture(fixtureDef);
+bodyDef.position.Set(10, -1.8);
+world.CreateBody(bodyDef).CreateFixture(fixtureDef);
+fixtureDef.shape.SetAsBox(2, 14);
+bodyDef.position.Set(-1.8, 13);
+world.CreateBody(bodyDef).CreateFixture(fixtureDef);
+bodyDef.position.Set(21.8, 13);
+world.CreateBody(bodyDef).CreateFixture(fixtureDef);
+
+function update(connections) {
+    world.Step(
+	1 / 60 //frame-rate
+	, 10 //velocity iterations
+	, 10 //position iterations
+	);
+
+	//io.sockets.emit('css', drawDOMObjects());
+	world.ClearForces();
+}
+
 
 app.listen(parseInt(port, 10));
 console.log("Static file server running at\n  => http://localhost:" + port + "/\nCTRL + C to shutdown");

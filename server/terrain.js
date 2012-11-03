@@ -220,9 +220,7 @@ $(function() {
     function step() {
         updateBalls();
         redrawBalls();
-        setTimeout(step, 10);
     }
-    
-    setTimeout(step, 10);
+    setInterval(step, 1000 / 60);
     
 });
