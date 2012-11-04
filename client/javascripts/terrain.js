@@ -38,6 +38,7 @@ $(function() {
         }
     });
     
+    /*
     $('#send').keyup(function(event) {
         if (event.keyCode === 13 || event.keyCode === 10) {
             if ($('#name').val()) {
@@ -48,9 +49,8 @@ $(function() {
             $(this).val('');
         }
     });
+    */
     
-    //bgCtx.fillStyle = "rgb(0,0,0)";
-    //bgCtx.fillRect (0, 0, 300, 300);
     var isPainting;
     $ui.mousedown(function(event) {
         if (!connected) {return;}

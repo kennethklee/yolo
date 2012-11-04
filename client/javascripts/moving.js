@@ -9,8 +9,6 @@ $(function() {
     // Ground around
     var bodyDef = new Box2D.Dynamics.b2BodyDef();
     bodyDef.type = Box2D.Dynamics.b2Body.b2_staticBody;
-    bodyDef.position.x = 9;
-    bodyDef.position.y = 13;
     fixtureDef.shape = new Box2D.Collision.Shapes.b2PolygonShape();
     fixtureDef.shape.SetAsBox(20, 2);
     bodyDef.position.Set(10, 400 / 30 + 1.8);
