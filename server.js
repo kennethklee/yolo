@@ -45,6 +45,12 @@ io.sockets.on('connection', function (socket) {
 
     sockets[socket.id] = socket;
     socket.on('disconnect', function () {
+        if (socket.playerName) {
+            Object.keys(games).forEach(function(gameName) {
+                dropPlayer(gameName, socket.playerName);
+            });
+        }
+        
         console.log((socket.playerName || 'User') + ' Disconnected!');
         io.sockets.emit('chat', {name: '<b>Server</b>', message: (socket.playerName || 'User') + ' Disconnected!'});
         delete sockets[socket.id];
@@ -100,22 +106,15 @@ io.sockets.on('connection', function (socket) {
                 });
             }
         };
+        console.log(socket.playerName + ' made a new game: ' + data);
         createPlayer(data, socket);
-        games[data].emit('joinedGame', {gameName: data, playerName: socket.playerName});
-        
-        console.log('Game Created: ' + socket.playerName + ' made a new game: ' + data);
     });
     
     socket.on('joinGame', function (data) {
-        createPlayer(data.gameName, socket);
-        console.log(data.gameName + ' <- ' + socket.playerName + ' (hello hello)');
-        games[data.gameName].emit('joinedGame', {gameName: data.gameName, playerName: socket.playerName});
+        createPlayer(data, socket);
     });
     socket.on('leaveGame', function (data) {
-        // TODO drop player
-        games[data].emit('leftGame', {gameName: data, playerName: socket.playerName});
         dropPlayer(data, socket);
-        console.log(data + ' -> ' + socket.playerName + ' (bye bye)');
     });
     socket.on('listGames', function (data) {
         socket.emit('gameList', Object.keys(games));
@@ -152,15 +151,38 @@ function createPlayer(gameName, socket) {
     }
     
     games[gameName].emit('playerJoined' , {
-        name: socket.playerName,
+        playerName: socket.playerName,
         timestamp: new Date().getTime(),
         x: bodyDef.position.x,
         y: bodyDef.position.y
     });
+    /*
+    Object.keys(games[gameName].players).forEach(function(playerName) {
+        var position = games[gameName].players[playerName].GetPosition();
+        socket.emit('playerJoined' , {
+            playerName: playerName,
+            timestamp: new Date().getTime(),
+            x: position.x,
+            y: position.y
+        });
+    });
+    */
+    
+    
+    console.log(gameName + ' <- ' + socket.playerName + ' (hello hello)');
+    
 }
 function dropPlayer(gameName, socket) {
+    if (!games[gameName].players[socket.playerName]) return;
+    dropPlayer(gameName, socket);
     games[gameName].world.DestroyBody(games[gameName].players[socket.playerName].body);
-    delete games[gameName].players[socket.playerName];
+    console.log(gameName + ' -> ' + socket.playerName + ' (bye bye)');
+    delete games[gameName].players[socket.playerName];  // TODO Need to make this thread safe
+    
+    if (!games[gameName].players.length) {  // No more players
+        console.log(gameName + ' is now empty. Destroyed.');
+        delete games[gameName]; // TODO Need to make this thread safe
+    }
 }
 var invFrameRate = 1/60;
 function update(connections) {
