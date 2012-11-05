@@ -49,8 +49,8 @@ $(function() {
     bodyDef.position.x = Math.random() * 10;
     bodyDef.position.y = Math.random() * 10;
     window.player = world.CreateBody(bodyDef)
-    window.player.SetFixedRotation(true);
     window.player.CreateFixture(fixtureDef);
+    window.player.SetFixedRotation(true);
 
     $(document).keyup(function(event) {
         switch(event.keyCode) {

@@ -149,16 +149,17 @@ function createPlayer(gameName, socket) {
         socket: socket,
         body: player
     }
-    
+    var position = player.GetPosition();
     games[gameName].emit('playerJoined' , {
         playerName: socket.playerName,
         timestamp: new Date().getTime(),
-        x: bodyDef.position.x,
-        y: bodyDef.position.y
+        x: position.x,
+        y: position.y
     });
-    /*
     Object.keys(games[gameName].players).forEach(function(playerName) {
-        var position = games[gameName].players[playerName].GetPosition();
+        if (playerName === socket.playerName) return;
+        var position = games[gameName].players[playerName].body.GetPosition();
+        console.log(position);
         socket.emit('playerJoined' , {
             playerName: playerName,
             timestamp: new Date().getTime(),
@@ -166,7 +167,6 @@ function createPlayer(gameName, socket) {
             y: position.y
         });
     });
-    */
     
     
     console.log(gameName + ' <- ' + socket.playerName + ' (hello hello)');

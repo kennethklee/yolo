@@ -143,6 +143,7 @@ $(function() {
     
     $('#createGame').click(function(event) {
         window.app.navigate('create');
+        $('#gameName').focus();
     });
     $('#cancel').click(function(event) {
         window.app.navigate('listing');
