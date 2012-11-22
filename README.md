@@ -1,4 +1,4 @@
 yolo
 ====
 
-Dashboard prototype for organizing life
+Prototypes of interesting HTML5 technologies.
