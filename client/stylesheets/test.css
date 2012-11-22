@@ -1,0 +1,9 @@
+#library tr td .availability.AVAILABLE {
+    color: green;
+}
+#library tr td .availability.UNAVAILABLE {
+    color: red;
+}
+#library tr td .small {
+    font-size: small;
+}

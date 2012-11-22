@@ -54,11 +54,13 @@
             self.players[data.playerName] = player;
         });
         
-        this.socket.on('gameState', function(data) {
-            data.forEach(function(state) {
-                self.players[state.playerName].SetTransform(new Box2D.Common.Math.b2Vec2(state.x, state.y));
-                self.players[state.playerName].SetLinearVelocity(new Box2D.Common.Math.b2Vec2(state.vx, state.vy));
-            });
+        this.socket.on('playerMoved', function(data) {
+            var player = self.players[data.playerName];
+            player.SetPositionAndAngle(new Box2D.Common.Math.b2Vec2(data.x, data.y), 0);
+            console.log('playerMoved', data);
+            player.ApplyForce(new Box2D.Common.Math.b2Vec2(data.fx, data.fy), player.GetWorldCenter())
+            //player.SetLinearVelocity(new Box2D.Common.Math.b2Vec2(data.vx, data.vy));
+            player.SetAwake(true);
         });
         
         this.navigate = function(newState, options) {
@@ -152,6 +154,28 @@ $(function() {
     $('#newGame').click(function(event) {
         console.log('Creating', $('#gameName').val());
         window.app.socket.emit('createGame', $('#gameName').val());
+    });
+    
+    // Bind keys
+    $(document).keyup(function(event) {
+        var player = window.app.players[$('#playerName').val()];
+        if (!player.IsAwake() || player.GetPosition().y > 12.38) {
+            switch(event.keyCode) {
+                case 38: // Up
+                    //player.ApplyForce(new Box2D.Common.Math.b2Vec2(0, -200), player.GetWorldCenter())
+                    break;
+                case 37: // Left
+                    //player.ApplyForce(new Box2D.Common.Math.b2Vec2(-150, 0), player.GetWorldCenter())
+                    //player.ApplyForce(new Box2D.Common.Math.b2Vec2(-150, -200), player.GetWorldCenter())
+                    window.app.socket.emit('keyState', 'left');
+                    break;
+                case 39: // Right
+                    //player.ApplyForce(new Box2D.Common.Math.b2Vec2(150, 0), player.GetWorldCenter())
+                    //player.ApplyForce(new Box2D.Common.Math.b2Vec2(150, -200), player.GetWorldCenter())
+                    window.app.socket.emit('keyState', 'right');
+                    break;
+            }
+        }
     });
     
 });

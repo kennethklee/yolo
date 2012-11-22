@@ -119,6 +119,17 @@ io.sockets.on('connection', function (socket) {
     socket.on('listGames', function (data) {
         socket.emit('gameList', Object.keys(games));
     });
+    
+    socket.on('keyState', function(data) {
+        switch (data) {
+            case 'left':
+                movePlayer(-150, -200, socket);
+                break;
+            case 'right':
+                movePlayer(150, -200, socket);
+                break;
+        }
+    });
 });
 
 
@@ -137,6 +148,7 @@ var games = {};
 
 function createPlayer(gameName, socket) {
     if (!games[gameName]) return;
+    socket.gameName = gameName;
     
     fixtureDef.shape.SetAsBox(0.3, 0.7);
     bodyDef.position.x = Math.random() * 10;
@@ -183,6 +195,20 @@ function dropPlayer(gameName, socket) {
         console.log(gameName + ' is now empty. Destroyed.');
         delete games[gameName]; // TODO Need to make this thread safe
     }
+}
+function movePlayer(fx, fy, socket) {
+    if (!games[socket.gameName] || !games[socket.gameName].players[socket.playerName]) return;
+    var player = games[socket.gameName].players[socket.playerName];
+    var position = player.body.GetPosition();
+    games[socket.gameName].emit('playerMoved', {
+            playerName: socket.playerName,
+            timestamp: new Date().getTime(),
+            x: position.x,
+            y: position.y,
+            fx: fx,
+            fy: fy,
+    });
+    player.body.ApplyForce(new Box2D.Common.Math.b2Vec2(fx, fy), player.body.GetWorldCenter())
 }
 var invFrameRate = 1/60;
 function update(connections) {
